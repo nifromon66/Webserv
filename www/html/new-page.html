@@ -1,0 +1,100 @@
+<!-- <h1>Bravo !</h1>
+<p>La redirection 301 a fonctionné.</p>
+<a href="/">Retour au Dashboard</a> -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>301 Moved Permanently</title>
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #00ff41;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .terminal {
+            width: 80%;
+            max-width: 700px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+        }
+        .header {
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            color: #8b949e;
+            font-size: 0.8em;
+        }
+        p { margin: 5px 0; }
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 18px;
+            background: #00ff41;
+            animation: blink 1s infinite;
+        }
+        a {
+            color: #fff;
+            text-decoration: none;
+            border: 1px solid #00ff41;
+            padding: 10px 20px;
+            display: inline-block;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+        a:hover {
+            background: #00ff41;
+            color: #000;
+        }
+        @keyframes blink { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div class="header">root@webserv-42:~# status_check</div>
+        <div id="logs"></div>
+        <a href="/" id="back-btn" style="display:none;">[ RETOUR A L'ACCUEIL ]</a>
+    </div>
+
+    <script>
+        const logs = [
+            "Initiating HTTP protocol check...",
+            "Detecting request on /old-page...",
+            "WARNING: Resource moved permanently.",
+            "ERROR 301: Location header found.",
+            "Redirecting traffic to /new-page.html...",
+            "Packet re-routing successful.",
+            "Destination reached. Welcome to the new location."
+        ];
+
+        const logContainer = document.getElementById('logs');
+        const btn = document.getElementById('back-btn');
+        let i = 0;
+
+        function typeLine() {
+            if (i < logs.length) {
+                const p = document.createElement('p');
+                p.innerHTML = `> ${logs[i]}`;
+                logContainer.appendChild(p);
+                i++;
+                setTimeout(typeLine, 600); // Vitesse d'écriture
+            } else {
+                const cursor = document.createElement('span');
+                cursor.className = 'cursor';
+                logContainer.appendChild(cursor);
+                btn.style.display = 'inline-block';
+            }
+        }
+        typeLine();
+    </script>
+</body>
+</html>

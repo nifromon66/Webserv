@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webserv 42 - Dashboard d'Évaluation</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --success: #10b981;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0; /* Padding retiré pour le bandeau */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 80px; /* Espace pour ne pas cacher le contenu sous le bandeau */
+        }
+
+        /* --- BANDEAU CORRECTEUR --- */
+        .evaluator-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #1e293b;
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .banner-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .doc-link {
+            background-color: var(--success);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .doc-link:hover {
+            background-color: #059669;
+        }
+
+        /* --- FIN BANDEAU --- */
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            margin-top: 20px;
+        }
+
+        h1 { margin: 0; font-size: 2.5rem; color: var(--primary); }
+        p.subtitle { color: var(--text-muted); margin-top: 5px; }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            width: 90%;
+            max-width: 1200px;
+            margin-bottom: 50px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover { transform: translateY(-3px); }
+
+        h2 {
+            margin-top: 0;
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 10px;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+        }
+
+        /* Badges pour la scale */
+        .badge {
+            font-size: 0.7em;
+            background: #e0e7ff;
+            color: var(--primary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: auto;
+        }
+
+        /* Liens et Boutons */
+        a.btn-link {
+            display: block;
+            background: var(--bg);
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 500;
+            transition: background 0.2s, border-left-width 0.1s;
+            border-left: 4px solid var(--primary);
+            font-size: 0.95rem;
+        }
+
+        a.btn-link:hover { background: #e0e7ff; border-left-width: 8px; }
+        a.btn-link span { float: right; color: var(--text-muted); font-size: 0.85em; }
+
+        /* Formulaires */
+        form { display: flex; flex-direction: column; gap: 10px; margin-top: auto; }
+
+        label { font-size: 0.9rem; font-weight: 600; color: var(--text-muted); }
+
+        input[type="text"], input[type="file"], input[type="password"] {
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button, input[type="submit"] {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+            margin-top: 5px;
+        }
+
+        button:hover, input[type="submit"]:hover { background-color: var(--primary-hover); }
+
+        /* Styles spécifiques DELETE */
+        .delete-section { margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border); }
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { background-color: #dc2626; }
+
+        /* Utilitaires couleurs bordures */
+        .border-red { border-left-color: var(--danger) !important; }
+        .border-orange { border-left-color: var(--warning) !important; }
+        .border-blue { border-left-color: var(--info) !important; }
+        .border-green { border-left-color: var(--success) !important; }
+
+    </style>
+</head>
+<body>
+
+    <div class="evaluator-banner">
+        <div class="banner-title">
+            <span>🛡️ Webserv Evaluation</span>
+        </div>
+        <div>
+            <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status" target="_blank" class="doc-link">
+                <span>📖 Voir les Codes HTTP</span>
+            </a>
+        </div>
+    </div>
+
+    <header>
+        <h1>🌐 Webserv </h1>
+        <p class="subtitle">Serveur HTTP/1.1 compatible C++98</p>
+    </header>
+
+    <div class="container">
+
+        <div class="card">
+            <h2><span class="icon">🌍</span> Navigation <span class="badge">Basic Checks</span></h2>
+            <p style="font-size: 0.9em; color: gray;">Test des routes, index et fichiers statiques.</p>
+
+            <a href="/show_index/" class="btn-link border-blue">
+                Test 1 : Fichier Index
+                <span style="display:block; font-size:0.8em; font-weight:normal; margin-top:5px;">
+                    Le serveur trouve index.html et l'affiche.
+                </span>
+            </a>
+
+            <a href="/show_list/" class="btn-link border-orange">
+                Test 2 : Listing (Autoindex)
+                <span style="display:block; font-size:0.8em; font-weight:normal; margin-top:5px;">
+                    Pas d'index trouvé -> Génération de la liste.
+                </span>
+            </a>
+            <!-- <a href="/demo_index/" class="btn-link border-blue">
+                Répertoire par défaut <span>(Index)</span>
+            </a>
+            <a href="/auto_test/" class="btn-link border-blue">
+                Listing de répertoire <span>(Autoindex)</span>
+            </a> -->
+            <a href="/old-page" class="btn-link border-orange">
+                Test Redirection 301 <span>(-> /new-page)</span>
+            </a>
+            <!-- Fichiers Binaires (.png, .jpg, .ico) -->
+            <a href="/assets/image.png" class="btn-link border-green">
+                Test PNG <span>(Check MIME & Binaire)</span> #
+            </a>
+            <a href="/assets/photo.jpg" class="btn-link border-green">
+                Test JPG <span>(Check MIME & Binaire)</span>
+            </a>
+        </div>
+
+        <div class="card">
+            <h2><span class="icon">⚠️</span> Codes d'Erreur <span class="badge">Config</span></h2>
+            <p style="font-size: 0.9em; color: gray;">Vérification des pages d'erreurs personnalisées.</p>
+
+            <a href="/404.html" class="btn-link border-red">
+                Test 404 <span>(Not Found)</span>
+            </a>
+            <a href="/403.html" class="btn-link border-orange">
+                Test 403 <span>(Forbidden)</span>
+            </a>
+            <a href="/413.html" class="btn-link border-yellow">
+                Test 413 <span>(Body too large)</span>
+            </a>
+			<a href="/504.html" class="btn-link border-red">
+                Test 504 <span>(Gateway Timeout)</span>
+            </a>
+        </div>
+
+        <div class="card">
+            <h2><span class="icon">⚙️</span> CGI & Scripts <span class="badge">Mandatory</span></h2>
+            <p style="font-size: 0.9em; color: gray;">Test GET, POST et gestion des erreurs CGI.</p>
+
+            <a href="/cgi-bin/hello.py" class="btn-link border-blue">
+
+                CGI GET <span>(Query String)</span>
+            </a>
+
+            <form action="/cgi-bin/test_formulaire.py" method="POST">
+                <label>CGI POST (Body) :</label>
+                <input type="text" name="data" placeholder="Données à envoyer...">
+                <input type="submit" value="Envoyer POST">
+            </form>
+
+            <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                <label style="color:var(--danger)">Stress Tests CGI :</label>
+                <a href="/cgi-bin/infinite_loop.py" class="btn-link border-red">
+                    Boucle Infinie <span>(Timeout - 504 Error)</span>
+                </a>
+                <a href="/cgi-bin/crash.py" class="btn-link border-red">
+                    Script Crash <span>(502 Error)</span>
+                </a>
+            </div>
+        </div>
+
+    <div class="card">
+        <h2><span class="icon">📤</span> Upload de Fichier <span class="badge">Basic checks</span></h2>
+
+        <div style="background: #eef2ff; padding: 10px; border-radius: 5px; border-left: 4px solid #4f46e5; margin-bottom: 15px; font-size: 0.9em; color: #374151;">
+            <strong>Méthode :</strong> <code style="background:#ddd; padding:2px 4px; border-radius:3px;">POST</code><br>
+            <strong>URL :</strong> <code style="color:#4f46e5;">/uploads/{nom_du_fichier}</code><br>
+        </div>
+
+        <div style="margin-top: 15px;">
+            <input type="file" id="fileInput" style="margin-bottom: 10px;">
+            <button onclick="uploadFile()" class="btn-link" style="cursor:pointer; background:#4f46e5; color:white; border:none; padding: 8px 15px; border-radius: 4px;">
+                Exécuter le POST
+            </button>
+    	</div>
+
+    	<div id="status" style="margin-top: 10px; font-weight: bold;"></div>
+	</div>
+
+    <script>
+        async function uploadFile()
+        {
+            const input = document.getElementById('fileInput');
+            const status = document.getElementById('status');
+
+            // 1. Vérifier qu'un fichier est sélectionné
+            if (input.files.length === 0)
+            {
+                status.innerHTML = "<span style='color:red'>❌ Veuillez choisir un fichier.</span>";
+                return;
+            }
+
+            const file = input.files[0];
+
+            // 2. Construire l'URL avec le VRAI nom du fichier
+            // Exemple : http://localhost:8080/uploads/mon_image.png
+            const url = "/uploads/" + file.name;
+
+            status.innerHTML = "⏳ Envoi en cours vers " + url + "...";
+
+            try
+            {
+                // 3. La partie fetch() : envoi du fichier via POST
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: file,                             // On envoie le fichier directement
+                    headers: { 'Content-Type': file.type }  // On prévient le serveur du type de fichier
+                });
+
+                // 4. Gestion de la réponse du serveur
+                if (response.ok)
+                    status.innerHTML = "<span style='color:green'>✅ Succès ! Fichier " + file.name + " uploadé.</span>";
+                else
+                    status.innerHTML = "<span style='color:red'>⚠️ Erreur " + response.status + ": " + response.statusText + "</span>";
+            }
+            catch (error)
+            {
+                console.error('Erreur:', error);
+                status.innerHTML = "<span style='color:red'>❌ Erreur réseau.</span>";
+            }
+        }
+    </script>
+        <div class="card">
+            <h2><span class="icon">🗑️</span> DELETE <span class="badge">Basic Checks</span></h2>
+
+            <div class="delete-section">
+                <label>Chemin à supprimer :</label>
+                <input type="text" id="delete-path" value="/uploads/upload_test.txt">
+                <button onclick="deleteFile()" class="btn-danger">Envoyer DELETE</button>
+            </div>
+            <div id="delete-result" style="margin-top: 10px; font-weight: bold;"></div>
+        </div>
+
+        <div class="card" style="border-left: 4px solid #6b7280;">
+            <h2><span class="icon">📜</span> Scripts de Test</h2>
+            <p style="font-size: 0.9em; color: gray;">
+                Scripts à lancer manuellement dans un terminal.
+            </p>
+
+            <div style="display:flex; gap:10px; flex-direction:column;">
+
+                <div class="btn-link" style="cursor: default; border-left-color: #9ca3af;">
+                    📂 <strong>tests/ubuntu_tester</strong>
+                    <span style="font-size:0.8em; display:block; color:#666; margin-top:4px;">
+                        Commande : <code>./tests/ubuntu_tester http://localhost:8080</code>
+                    </span>
+                </div>
+
+                <div class="btn-link" style="cursor: default; border-left-color: #9ca3af;">
+                    📂 <strong>tests/siege.sh</strong>
+                    <span style="font-size:0.8em; display:block; color:#666; margin-top:4px;">
+                        Commande : <code>./tests/siege.sh</code>
+                    </span>
+                </div>
+
+                <div class="btn-link" style="cursor: default; border-left-color: #9ca3af;">
+                    📂 <strong>tests/test_curl.sh</strong>
+                    <span style="font-size:0.8em; display:block; color:#666; margin-top:4px;">
+                        Commande : <code>./tests/test_curl.sh</code>
+                    </span>
+                </div>
+
+                <div class="btn-link" style="cursor: default; border-left-color: #9ca3af;">
+                    📂 <strong>testWebserv.sh</strong>
+                    <span style="font-size:0.8em; display:block; color:#666; margin-top:4px;">
+                        Commande : <code>./tests/testWebserv.sh</code>
+                    </span>
+                </div>
+
+                <div style="background:#f3f4f6; padding:10px; border-radius:6px; font-size:0.85em; margin-top:5px; border: 1px solid #e5e7eb;">
+                    <strong>ℹ️ Info :</strong> Ces scripts nécessitent un terminal interactif. Ne pas exécuter via le navigateur.
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="border-color: #ffd700;">
+            <h2><span class="icon">🍪</span> Cookies <span class="badge" style="background:#fffbeb; color:#b45309">Bonus</span></h2>
+
+            <p style="font-size: 0.9em; color: gray;">You can login by inserting username and password.</p>
+            <form action="/login" method="POST">
+                <label></label>
+                <input type="text" name="username" minlength="4" maxlength="21" required
+                        pattern="^[a-zA-Z0-9_-]{4,21}$" title="4-21 chars (a-zA-Z0-9_-)"
+                        placeholder="Username">
+                <input type="password" name="password" minlength="8" maxlength="42" required
+                        pattern="^[a-zA-Z0-9_-]{8,42}$" title="8-42 chars (a-zA-Z0-9_-)"
+                        placeholder="Password">
+                <input type="submit" value="Login" style="background-color: #f59e0b;">
+            </form>
+            <p style="font-size: 0.9em; color: gray;">You can directly logout.</p>
+            <form action="/logout" method="POST">
+                <label></label>
+                <input type="submit" value="Logout" style="background-color: #dc2626;">
+            </form>
+            <p style="font-size: 0.9em; color: gray;">Answer a quick Q&A to test session memory.</p>
+            <form action="/Q&A" method="POST">
+                <label></label>
+                <input type="submit" value="Q&A" style="background-color: #b300c7;">
+            </form>
+        </div>
+
+    </div>
+
+    <script>
+        // Script pour DELETE
+        async function deleteFile() {
+            const path = document.getElementById('delete-path').value;
+            const resultDiv = document.getElementById('delete-result');
+
+            resultDiv.innerHTML = "Envoi de la requête...";
+            resultDiv.style.color = "blue";
+
+            try {
+                const response = await fetch(path, { method: 'DELETE' });
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `✅ Succès: Fichier supprimé (Code ${response.status})`;
+                    resultDiv.style.color = "green";
+                } else {
+                    resultDiv.innerHTML = `❌ Erreur ${response.status}: ${response.statusText}`;
+                    resultDiv.style.color = "red";
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `❌ Erreur réseau: ${error.message}`;
+                resultDiv.style.color = "red";
+            }
+        }
+
+        // Script pour simuler un POST ou DELETE sur une route non autorisée (405)
+        async function deleteProtected(e) {
+            e.preventDefault();
+            const url = e.currentTarget.getAttribute('href');
+            alert("Tentative de DELETE sur " + url + " (Devrait retourner 405)");
+            try {
+                const response = await fetch(url, { method: 'DELETE' });
+                if (response.status === 405) {
+                    alert("✅ Succès: Le serveur a répondu 405 Method Not Allowed");
+                } else {
+                    alert("❌ Échec: Le serveur a répondu " + response.status);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+</html>

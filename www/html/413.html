@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>413 - Fichier Trop Gros</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .container {
+            /* Couleur Jaune/Or pour la limite de taille */
+            border: 2px solid #FFD700; 
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+            max-width: 600px;
+        }
+        h1 { font-size: 80px; margin: 0; color: #FFD700; }
+        h2 { font-size: 24px; margin-top: 10px; }
+        p { color: #aaaaaa; margin-bottom: 30px; }
+        a {
+            text-decoration: none;
+            color: #1a1a1a;
+            background-color: #f0f0f0;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        a:hover { background-color: #FFD700; color: black; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>413</h1>
+        <h2>Content Too Large</h2>
+        <p>Le fichier ou les données que vous tentez d'envoyer dépassent la limite autorisée par le serveur.</p>
+        <p>Veuillez réduire la taille de votre envoi.</p>
+        <a href="/">Retour</a>
+    </div>
+</body>
+</html>
